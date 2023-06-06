@@ -23,24 +23,8 @@ jobs:
     steps:
       - id: testRunId
         run: echo testRunId=$(npx uuid) >> "$GITHUB_OUTPUT"
-  files-changed:
-    name: Check which files changed
-    runs-on: ubuntu-22.04
-    timeout-minutes: 3
-    outputs:
-      e2e_all: ${{ steps.changes.outputs.e2e_all }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Test which files changed
-        uses: dorny/paths-filter@v2.11.1
-        id: changes
-        with:
-          token: ${{ github.token }}
-          filters: .github/file-paths.yaml
 
   build:
-    needs: files-changed
-    if: github.event.pull_request.draft == false && needs.files-changed.outputs.e2e_all == 'true'
     runs-on: ubuntu-22.04
     timeout-minutes: 25
     strategy:
@@ -65,10 +49,9 @@ jobs:
         uses: ./.github/actions/prepare-uberjar-artifact
 
   e2e-tests:
-    needs: [build, files-changed, test-run-id]
+    needs: [build, test-run-id]
     if: |
       always() &&
-      needs.files-changed.outputs.e2e_all == 'true' &&
       needs.build.result == 'success'
     runs-on: ubuntu-22.04
     timeout-minutes: 60
@@ -205,10 +188,9 @@ jobs:
           if-no-files-found: ignore
 
   e2e-tests-skipped-stub:
-    needs: [build, files-changed]
+    needs: [build]
     if: |
       always() &&
-      needs.files-changed.outputs.e2e_all == 'false' &&
       needs.build.result == 'skipped'
     runs-on: ubuntu-22.04
     timeout-minutes: 5
@@ -245,4 +227,3 @@ jobs:
     steps:
       - run: |
           echo "Didn't run due to conditional filtering"
-
