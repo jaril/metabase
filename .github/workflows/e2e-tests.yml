@@ -61,7 +61,7 @@ jobs:
       always() &&
       needs.build.result == 'success'
     runs-on: ubuntu-22.04
-    timeout-minutes: 60
+    timeout-minutes: 120
     name: e2e-tests-${{ matrix.folder }}${{ matrix.context }}-${{ matrix.edition }}
     env:
       MB_EDITION: ${{ matrix.edition }}
@@ -162,6 +162,46 @@ jobs:
           jar xf target/uberjar/metabase.jar version.properties
           mv version.properties resources/
 
+      - name: Run EE Cypress tests on ${{ matrix.folder }}
+        if: matrix.edition == 'ee'
+        run: |
+          yarn run test-cypress-run \
+          --env grepTags="-@OSS" \
+          --folder ${{ matrix.folder }}
+        env:
+          TERM: xterm
+      - name: Run EE Cypress tests on ${{ matrix.folder }}
+        if: matrix.edition == 'ee'
+        run: |
+          yarn run test-cypress-run \
+          --env grepTags="-@OSS" \
+          --folder ${{ matrix.folder }}
+        env:
+          TERM: xterm
+      - name: Run EE Cypress tests on ${{ matrix.folder }}
+        if: matrix.edition == 'ee'
+        run: |
+          yarn run test-cypress-run \
+          --env grepTags="-@OSS" \
+          --folder ${{ matrix.folder }}
+        env:
+          TERM: xterm
+      - name: Run EE Cypress tests on ${{ matrix.folder }}
+        if: matrix.edition == 'ee'
+        run: |
+          yarn run test-cypress-run \
+          --env grepTags="-@OSS" \
+          --folder ${{ matrix.folder }}
+        env:
+          TERM: xterm
+      - name: Run EE Cypress tests on ${{ matrix.folder }}
+        if: matrix.edition == 'ee'
+        run: |
+          yarn run test-cypress-run \
+          --env grepTags="-@OSS" \
+          --folder ${{ matrix.folder }}
+        env:
+          TERM: xterm
       - name: Run EE Cypress tests on ${{ matrix.folder }}
         if: matrix.edition == 'ee'
         run: |
