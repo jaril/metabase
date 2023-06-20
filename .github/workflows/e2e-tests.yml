@@ -175,4 +175,4 @@ jobs:
           --folder ${{ matrix.folder }}
         env:
           TERM: xterm
-          DEPLOYSENTINEL_ENABLED: 1
+          CYPRESS_DEPLOYSENTINEL_ENABLED: 1
