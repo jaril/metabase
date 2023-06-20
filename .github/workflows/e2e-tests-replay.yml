@@ -76,6 +76,7 @@ jobs:
       fail-fast: false
       matrix:
         java-version: [11]
+        trial: [1, 2, 3]
         edition: [ee]
         folder:
           # - "admin"
@@ -166,7 +167,7 @@ jobs:
       - name: Install Replay.io browser
         run: npx @replayio/cypress install
 
-      - name: Run EE Cypress tests on ${{ matrix.folder }} using Replay.io browser
+      - name: Run EE Cypress tests on ${{ matrix.folder }} (${{ matrix.trial }}/3) using Replay.io
         if: matrix.edition == 'ee'
         run: |
           yarn run test-cypress-run \
