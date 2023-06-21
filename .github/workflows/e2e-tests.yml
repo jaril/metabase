@@ -137,10 +137,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Record runs using Deploysentinel except for the release branch
-        if: ${{ github.ref == 'refs/heads/master' || !(startsWith(github.event.pull_request.base.ref, 'release')) }}
-        run: |
-          echo "CYPRESS_DEPLOYSENTINEL_KEY=${{ secrets.CYPRESS_DEPLOYSENTINEL_KEY }}" >> $GITHUB_ENV
       - name: Prepare front-end environment
         uses: ./.github/actions/prepare-frontend
       - name: Prepare JDK ${{ matrix.java-version }}
@@ -214,11 +210,6 @@ jobs:
           RECORD_REPLAY_METADATA_FILE: /tmp/replay-metadata.json
           RECORD_REPLAY_METADATA_TEST_RUN_ID: ${{ needs.test-run-id.outputs.testRunId }}
 
-      - name: Record runs using Deploysentinel except for the release branch
-        if: always()
-        run: |
-          echo "CYPRESS_DEPLOYSENTINEL_KEY=c554175b-4bda-4378-8bb3-b1fe62ccb868" >> $GITHUB_ENV
-
       - name: 4) Run EE Cypress tests on ${{ matrix.folder }} with DeploySentinel
         if: always()
         run: |
@@ -229,3 +220,4 @@ jobs:
           TERM: xterm
           DEPLOYSENTINEL_ENABLED: 1
           CYPRESS_DEPLOYSENTINEL_ENABLED: 1
+          CYPRESS_DEPLOYSENTINEL_KEY: c554175b-4bda-4378-8bb3-b1fe62ccb868
