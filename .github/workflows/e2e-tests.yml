@@ -137,10 +137,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Record runs using Deploysentinel except for the release branch
-        if: ${{ github.ref == 'refs/heads/master' || !(startsWith(github.event.pull_request.base.ref, 'release')) }}
-        run: |
-          echo "CYPRESS_DEPLOYSENTINEL_KEY=${{ secrets.CYPRESS_DEPLOYSENTINEL_KEY }}" >> $GITHUB_ENV
       - name: Prepare front-end environment
         uses: ./.github/actions/prepare-frontend
       - name: Prepare JDK ${{ matrix.java-version }}
@@ -162,11 +158,6 @@ jobs:
           jar xf target/uberjar/metabase.jar version.properties
           mv version.properties resources/
 
-      - name: Record runs using Deploysentinel except for the release branch
-        if: ${{ github.ref == 'refs/heads/master' || !(startsWith(github.event.pull_request.base.ref, 'release')) }}
-        run: |
-          echo "CYPRESS_DEPLOYSENTINEL_KEY=c554175b-4bda-4378-8bb3-b1fe62ccb868" >> $GITHUB_ENV
-
       - name: Run EE Cypress tests on ${{ matrix.folder }} with DeploySentinel
         if: matrix.edition == 'ee'
         run: |
@@ -175,4 +166,5 @@ jobs:
           --folder ${{ matrix.folder }}
         env:
           TERM: xterm
+          CYPRESS_DEPLOYSENTINEL_KEY: c554175b-4bda-4378-8bb3-b1fe62ccb868
           CYPRESS_DEPLOYSENTINEL_ENABLED: 1
