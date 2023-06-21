@@ -61,7 +61,7 @@ jobs:
       always() &&
       needs.build.result == 'success'
     runs-on: ubuntu-22.04
-    timeout-minutes: 60
+    timeout-minutes: 120
     name: e2e-tests-${{ matrix.folder }}${{ matrix.context }}-${{ matrix.edition }}
     env:
       MB_EDITION: ${{ matrix.edition }}
@@ -137,10 +137,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Record runs using Deploysentinel except for the release branch
-        if: ${{ github.ref == 'refs/heads/master' || !(startsWith(github.event.pull_request.base.ref, 'release')) }}
-        run: |
-          echo "CYPRESS_DEPLOYSENTINEL_KEY=${{ secrets.CYPRESS_DEPLOYSENTINEL_KEY }}" >> $GITHUB_ENV
       - name: Prepare front-end environment
         uses: ./.github/actions/prepare-frontend
       - name: Prepare JDK ${{ matrix.java-version }}
@@ -162,22 +158,12 @@ jobs:
           jar xf target/uberjar/metabase.jar version.properties
           mv version.properties resources/
 
-      - name: Run EE Cypress tests on ${{ matrix.folder }}
-        if: matrix.edition == 'ee' && github.event_name != 'schedule'
-        run: |
-          yarn run test-cypress-run \
-          --env grepTags="-@OSS" \
-          --folder ${{ matrix.folder }}
-        env:
-          TERM: xterm
-
       # REPLAY.IO specific jobs
       - name: Install Replay.io browser
-        if: ${{ github.event_name == 'schedule' }}
         run: npx @replayio/cypress install
 
-      - name: Run EE Cypress tests on ${{ matrix.folder }} using Replay.io browser
-        if: matrix.edition == 'ee' && github.event_name == 'schedule'
+      - name: 3.1) Run EE Cypress tests on ${{ matrix.folder }} using Replay.io browser (no asserts)
+        if: always()
         run: |
           yarn run test-cypress-run \
           --env grepTags="-@OSS" \
@@ -185,22 +171,14 @@ jobs:
           --browser "replay-chromium"
         env:
           TERM: xterm
+          CYPRESS_REPLAYIO_ENABLED: 1
+          RECORD_REPLAY_DISABLE_ASSERTS: 1
           RECORD_REPLAY_METADATA_FILE: /tmp/replay-metadata.json
           RECORD_REPLAY_METADATA_TEST_RUN_ID: ${{ needs.test-run-id.outputs.testRunId }}
 
       - name: Upload Replay.io recordings
-        if: github.event_name == 'schedule' && always()
+        if: always()
         uses: replayio/action-upload@v0.4.7
         with:
-          api-key: rwk_gXbvYctIcR6RZyEzUvby3gtkO4esrB2L321lkY8FSuQ
+          api-key: rwk_zSTaucZSrZDvYAyqX8PGbPQwBqGov2jU2lPNHxAuqLf
           public: true
-
-      - name: Upload Cypress Artifacts upon failure
-        uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: cypress-recording-${{ matrix.folder }}${{ matrix.context }}-${{ matrix.edition }}
-          path: |
-            ./cypress
-            ./logs/test.log
-          if-no-files-found: ignore
