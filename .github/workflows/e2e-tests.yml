@@ -167,7 +167,7 @@ jobs:
         run: npx @replayio/cypress install
 
       - name: 1) Run EE Cypress tests on ${{ matrix.folder }}
-        if: matrix.edition == 'ee'
+        if: always()
         run: |
           yarn run test-cypress-run \
           --env grepTags="-@OSS" \
@@ -176,7 +176,7 @@ jobs:
           TERM: xterm
 
       - name: 2) Run EE Cypress tests on ${{ matrix.folder }} with Video
-        if: matrix.edition == 'ee'
+        if: always()
         run: |
           yarn run test-cypress-run \
           --env grepTags="-@OSS" \
@@ -186,7 +186,7 @@ jobs:
           CYPRESS_VIDEO_ENABLED: 1
 
       - name: 3.1) Run EE Cypress tests on ${{ matrix.folder }} using Replay.io browser (no asserts)
-        if: matrix.edition == 'ee'
+        if: always()
         run: |
           yarn run test-cypress-run \
           --env grepTags="-@OSS" \
@@ -200,7 +200,7 @@ jobs:
           RECORD_REPLAY_METADATA_TEST_RUN_ID: ${{ needs.test-run-id.outputs.testRunId }}
 
       - name: 3.2) Run EE Cypress tests on ${{ matrix.folder }} using Replay.io browser (no asserts/sourcemap collection)
-        if: matrix.edition == 'ee'
+        if: always()
         run: |
           yarn run test-cypress-run \
           --env grepTags="-@OSS" \
@@ -215,12 +215,12 @@ jobs:
           RECORD_REPLAY_METADATA_TEST_RUN_ID: ${{ needs.test-run-id.outputs.testRunId }}
 
       - name: Record runs using Deploysentinel except for the release branch
-        if: ${{ github.ref == 'refs/heads/master' || !(startsWith(github.event.pull_request.base.ref, 'release')) }}
+        if: always()
         run: |
           echo "CYPRESS_DEPLOYSENTINEL_KEY=c554175b-4bda-4378-8bb3-b1fe62ccb868" >> $GITHUB_ENV
 
       - name: 4) Run EE Cypress tests on ${{ matrix.folder }} with DeploySentinel
-        if: matrix.edition == 'ee'
+        if: always()
         run: |
           yarn run test-cypress-run \
           --env grepTags="-@OSS" \
